@@ -10,7 +10,7 @@ function generate_gene(size,number)
       -- 0 right
       -- 1 up
       -- 2 down
-      gene[j][i] = math.random(0,3)
+      gene[j][i] = math.random(0,1)
     end
   end
   return gene
@@ -33,45 +33,60 @@ function calc(size,number,gene)
     for i = 0,size do
       status = gene[j][i]
       if(status == 0) then
-        judge = move_right(framerate)
-        if(judge == 1) then --dead
-          gene_result[j] = {1,emu.framecount()}
-        elseif(judge == 0) then --clear
-          gene_result[j] = {0,emu.framecount()}
-        end
+        move_right(framerate)
 
       elseif(status == 1) then
-        judge = move_up(framerate)
-        if(judge == 1) then
-          gene_result[j] = {1,emu.framecount()}
-        elseif(judge == 0) then
-          gene_result[j] = {0,emu.framecount()}
-        end
+        move_up(framerate)
 
       elseif(status == 2) then
-        judge = move_left(framerate)
-        if(judge == 1) then
-          gene_result[j] = {1,emu.framecount()}
-        elseif(judge == 0) then
-          gene_result[j] = {0,emu.framecount()}
-        end
+        move_wait(framerate)
 
-      elseif(status == 3) then
-        judge = move_wait(framerate)
-        if(judge == 1) then
-          gene_result[j] = {1,emu.framecount()}
-        elseif(judge == 0) then
-          gene_result[j] = {0,emu.framecount()}
-        end
+      end
+
+      if(is_dead() == 0) then
+        gene_result[j] = {1,emu.framecount()}
+        break
+      elseif(is_clear() == 0) then
+        gene_result[j] = {0,emu.framecount()}
+        break
       end
 
     end
-    emu.print(gene_result[j])
   end
   return gene_result
 end
 
-function selection(size,number,gene,gene_result)
+function gene_sort(size,number,gene,gene_result)
+  before = gene_result[0][1]
+  before_ = gene_result[0][2]
+  end_flag = 0
+
+  while true do
+    for i = 1,number do
+      if(before < gene_result[i][1] or before_ > gene_result[i][2]) then
+        end_flag = 1
+        tmp =  gene[i]
+        gene[i] = gene[i-1]
+        gene[i-1] = gene[i]
+      end
+      before = gene_result[i][1]
+      before_ = gene_result[i][2]
+    end
+    if(end_flag == 0) then
+      break
+    end
+    end_flag = 0
+  end
+  return gene
+end
+
+--ランキング選択
+-- 1位 50%
+-- 2位 20%
+-- 3位 15%
+-- 4位 10%
+-- 5位 5%
+function selection(size,number,gene,gene_result) --ランキング選択
   return gene
 end
 

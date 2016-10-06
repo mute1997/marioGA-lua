@@ -18,7 +18,7 @@ function poweron()
 end
 
 function is_dead()
-  if(memory.readbyte(0x000e) == 11 or memory.readbyte(0x000e) == 0) then
+  if(memory.readbyte(0x000e) ~= 8) then
     return 0
   else
     return 1
