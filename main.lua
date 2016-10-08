@@ -1,7 +1,6 @@
 require("GA")
 
---集団サイズは100 * 10
--- size * number
+--集団サイズは size * number
 size = 100
 number = 50 -- number >= 5
 

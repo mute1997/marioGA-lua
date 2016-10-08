@@ -73,20 +73,26 @@ function gene_sort(size,number,gene,gene_result)
 end
 
 
-function crossing(parent,parent_) --1点交叉法
+function crossing(parent,parent_) --多点交叉法
+  local point_interval = 20
   local child = {}
   local child_ = {}
 
   point = math.random(1,table.maxn(parent))
 
-  for i = 1,point do
+  flag = true
+  for i = 1,table.maxn(parent) do
+    if(i % point_interval == 0) then
+      flag = not(flag)
+    end
+
+    if(flag == true) then
     table.insert(child,parent[i])
     table.insert(child_,parent_[i])
-  end
-
-  for i = point,table.maxn(parent) do
+    else
     table.insert(child,parent_[i])
     table.insert(child_,parent[i])
+    end
   end
 
   return (child),(child_)
