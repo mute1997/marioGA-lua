@@ -3,6 +3,7 @@ require("player_api/machine")
 
 -- 0 1 2の３つの状態を遷移する
 function generate_gene(size,number)
+  local state = 2--マリオがとりうる状態数
   local gene = {}
   for j = 1,number do
     gene[j] = {}
@@ -10,28 +11,34 @@ function generate_gene(size,number)
       -- 0 right
       -- 1 up
       -- 2 down
-      table.insert(gene[j],math.random(0,1))
+      table.insert(gene[j],math.random(1,state))
     end
   end
   return gene
 end
 
 function calc(size,number,gene)
-  local framerate = 40
   local status = 0
-  local judge = 0
   local gene_result = {}
+  local framerate = 60
 
   --calc
   for j = 1,number do
     poweron()
     for i = 1,size do
       status = gene[j][i]
-      if(status == 0) then
-        move_right(framerate)
+      if(status == 1) then
+        move_right(10)
 
-      elseif(status == 1) then
-        move_up(framerate)
+      elseif(status == 2) then
+        move_up_right(framerate) --斜め飛び
+
+      elseif(status == 3) then
+        move_left(framerate)
+
+      elseif(status == 4) then
+        move_up_left(framerate)
+
       end
 
       if(is_dead() == 0) then
@@ -72,13 +79,30 @@ function gene_sort(size,number,gene,gene_result)
   return gene
 end
 
-
-function crossing(parent,parent_) --多点交叉法
-  local point_interval = 20
+function crossing(parent,parent_) --一様交叉
   local child = {}
   local child_ = {}
+  local probability_list = {1,2}
 
-  point = math.random(1,table.maxn(parent))
+  for i = 1,table.maxn(parent) do
+    probability = probability_list[math.random(1,2)]
+    if(probability == 1) then
+      table.insert(child,parent_[i])
+      table.insert(child_,parent[i])
+    else
+      table.insert(child,parent[i])
+      table.insert(child_,parent_[i])
+    end
+  end
+
+  return (child),(child_)
+end
+
+
+function crossing_(parent,parent_) --多点交叉法
+  local point_interval = 10
+  local child = {}
+  local child_ = {}
 
   flag = true
   for i = 1,table.maxn(parent) do
@@ -98,49 +122,41 @@ function crossing(parent,parent_) --多点交叉法
   return (child),(child_)
 end
 
---ランキング選択
--- 1位 50%
--- 2位 20%
--- 3位 15%
--- 4位 10%
--- 5位 5%
+function mutation(child,child_)
+  local state = 2
+  local persentage = 5 --5%の確率で突然変異する
+  if(math.random(1,100) < 5) then
+    local mutation_point = math.random(1,table.maxn(child))
+    child[mutation_point] = math.random(1,state)
+  end
+  if(math.random(1,100) < 5) then
+    local mutation_point = math.random(1,table.maxn(child))
+    child_[mutation_point] = math.random(1,state)
+  end
+  return (child),(child_)
+end
+
+--選択方式は上位20体からランダムに選択
 function generate_nextgen(size,number,gene,gene_result) --ランキング選択
   gene = gene_sort(size,number,gene,gene_result)
   selection_list = {}
 
-  --ランキング方式の割合設定
-  first = 50
-  second = 20
-  third = 15
-  fourth = 10
-  fifth = 5
-
-  for i = 1,first do
+  for i = 1,20 do
     table.insert(selection_list,gene[i])
-  end
-
-  for i = 1,second do
-    table.insert(selection_list,gene[i+1])
-  end
-
-  for i = 1,third do
-    table.insert(selection_list,gene[i+2])
-  end
-
-  for i = 1,fourth do
-    table.insert(selection_list,gene[i+3])
-  end
-
-  for i = 1,fifth do
-    table.insert(selection_list,gene[i+4])
   end
 
   local next_gene = {}
   for i = 0,number/2 do
     parent = selection_list[math.random(1,table.maxn(selection_list))]
-    parent_ = selection_list[math.random(1,table.maxn(selection_list))]
+    --同じ親が選択されないようにする
+    while true do
+      parent_ = selection_list[math.random(1,table.maxn(selection_list))]
+      if(parent ~= parent_) then
+        break
+      end
+    end
 
-    child,child_ = crossing(parent,parent_)
+    child,child_ = mutation(crossing(parent,parent_))
     table.insert(next_gene,child)
     table.insert(next_gene,child_)
   end
