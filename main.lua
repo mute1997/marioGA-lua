@@ -4,7 +4,7 @@ emu.speedmode("maximum")
 
 --集団サイズは size * number
 size = 1000
-number = 200 -- number >= 5
+number = 50 -- number >= 5
 
 final_generation = 1000
 

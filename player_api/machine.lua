@@ -26,7 +26,7 @@ function is_dead()
 end
 
 function is_clear()
-  if(memory.readbyte(0x000b) == 2) then
+  if(memory.readbyte(0x000e) == 4) then
     return 0
   else
     return 1

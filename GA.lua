@@ -41,10 +41,17 @@ function calc(size,number,gene)
 
       end
 
-      if(is_dead() == 0) then
-        table.insert(gene_result,emu.framecount())
+      if(is_clear() == 0) then
+        str = ""
+        for z=1,table.maxn(gene[1]) do
+          str = str..tostring(gene[j][z])
+        end
+        f = io.open('result.txt','w')
+        f:write(str)
+        f:close()
+        --table.insert(gene_result,emu.framecount())
         break
-      elseif(is_clear() == 0) then
+      elseif(is_dead() == 0) then
         table.insert(gene_result,emu.framecount())
         break
       end
